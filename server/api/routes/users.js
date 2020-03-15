@@ -6,13 +6,25 @@ const User = require('../models/user');
 
 router.get('/', (req, res, next) => {
     User.find()
+        .select("*")
+        .populate('userTypeId permissionId', 'userTypeId permissionId')
         .exec()
         .then(users => {
             if (users) {
                 console.log(users);
                 res.status(200).json({
                     message: 'Fetched all users successfully!!',
-                    users: users,
+                    users: users.map(user =>{
+                        return {
+                            _id: user._id,
+                            permissionId: user.permissionId,                            
+                            userTypeId: user.userTypeId,
+                            request: {
+                                type: 'GET',
+                                url: 'http://localhost:3000/users/' + user._id
+                            }
+                        }
+                    }),
                     count: users.length
                 });
             } else {
@@ -24,6 +36,26 @@ router.get('/', (req, res, next) => {
         .catch(err => {
             console.log(err);
             res.status(500).json({ err: err });
+        });
+});
+
+router.get('/:userId', (req, res, next) => {
+    const userId = req.params.userId;
+    User.findById(userId)
+        .populate('userTypeId permissionId')
+        .exec()
+        .then(doc => {
+            if (doc) {
+                res.status(200).json(doc)
+            } else {
+                res.status(404).json({
+                    message: "No user with such id"
+                })
+            }
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(500).json({ error: error });
         });
 });
 
@@ -48,9 +80,17 @@ router.post('/', (req, res, next) => {
     user.save()
         .then(result => {
             console.log(result);
-            res.status(200).json({
+            res.status(201).json({
                 message: 'User added successfully!!!',
-                createdUser: user
+                createdUser: {
+                    _id: result._id,
+                    permissionId: result.permissionId,
+                    userTypeId: result.userTypeId
+                },
+                request: {
+                    type: 'GET',
+                    url: 'http://localhost:3000/users/' + user._id
+                }
             });
         })
         .catch(error => {
@@ -58,26 +98,6 @@ router.post('/', (req, res, next) => {
             res.status(500).json({
                 error: error
             });
-        });
-});
-
-router.get('/:userId', (req, res, next) => {
-    const userId = req.params.userId;
-    User.findById(userId)
-        .exec()
-        .then(doc => {
-            if (doc) {
-                res.status(200).json(doc)
-            } else {
-
-                res.status(404).json({
-                    message: "No user with such id"
-                })
-            }
-        })
-        .catch(error => {
-            console.log(error);
-            res.status(500).json({ error: error });
         });
 });
 
