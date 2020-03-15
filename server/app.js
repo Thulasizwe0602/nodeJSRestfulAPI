@@ -14,6 +14,8 @@ mongoose.connect('mongodb+srv://sizwe:'+ process.env.MONGO_DB_PASSWORD +'@sizdb-
     });
 
 const usersRoutes = require('./api/routes/users');
+const permissionsRoutes = require('./api/routes/permissions');
+const userTypeRoutes = require('./api/routes/usertypes');
 
 
 app.use(morgan('dev'));
@@ -36,6 +38,8 @@ app.use((req, res, next) => {
 
 //app routers
 app.use('/users', usersRoutes);
+app.use('/permissions', permissionsRoutes);
+app.use('/usertypes', userTypeRoutes);
 
 //Error handling.
 app.use((req, res, next) => {

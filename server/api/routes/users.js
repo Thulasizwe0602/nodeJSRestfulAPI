@@ -31,7 +31,18 @@ router.post('/', (req, res, next) => {
     const user = new User({
         _id: new mongoose.Types.ObjectId(),
         firstName: req.body.firstName,
-        lastName: req.body.lastName
+        lastName: req.body.lastName,        
+        alias: req.body.alias,
+        emailAddress: req.body.emailAddress,
+        password: req.body.password,
+        phoneNumber: req.body.phoneNumber,
+        isActive: req.body.isActive,
+        isDisabled: req.body.isDisabled,
+        isDarkMode: req.body.isDarkMode,
+        createdAt: req.body.createdAt,
+        updatedAt: req.body.updatedAt,
+        userTypeId: req.body.userTypeId,
+        permissionId: req.body.permissionId
     });
 
     user.save()
