@@ -6,7 +6,6 @@ const User = require('../models/user');
 
 router.get('/', (req, res, next) => {
     User.find()
-        .select("*")
         .populate('userTypeId permissionId', 'userTypeId permissionId')
         .exec()
         .then(users => {
@@ -17,6 +16,8 @@ router.get('/', (req, res, next) => {
                     users: users.map(user =>{
                         return {
                             _id: user._id,
+                            firstName: user.firstName,
+                            lastName: user.lastName,
                             permissionId: user.permissionId,                            
                             userTypeId: user.userTypeId,
                             request: {
