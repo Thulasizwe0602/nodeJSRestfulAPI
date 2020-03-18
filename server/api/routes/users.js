@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const { dateToString, privateKey } = require('../helpers/helper');
@@ -79,7 +80,7 @@ router.get('/:userId', (req, res, next) => {
 });
 
 router.post('/signup', (req, res, next) => {
-    User.find({ emailAddress: req.body.emailAddress})
+    User.find({ emailAddress: req.body.emailAddress })
         .exec()
         .then(user => {
             if (user.length >= 1) {
@@ -139,6 +140,48 @@ router.post('/signup', (req, res, next) => {
         .catch();
 
 
+});
+
+router.post('/signin', (req, res, next) => {
+    User.findOne({ emailAddress: req.body.emailAddress })
+        .exec()
+        .then(user => {
+            if (!user) {
+                return res.status(404).json({
+                    message: "Login failed!!!"
+                });
+            }
+            bcrypt.compare(req.body.password, user.password, (error, result) => {
+                if (error) {
+                    return res.status(401).json({
+                        message: 'Login failed!!!'
+                    });
+                }
+                if (result) {
+                    const token = jwt.sign({
+                        emailAddress: user.emailAddress,
+                        userId: user._id
+                    }, privateKey,
+                    {
+                        expiresIn: "1h"
+                    }
+                    );
+                    return res.status(200).json({
+                        message: 'Welcome ' + user.firstName + '...',
+                        token: token
+                    });
+                }
+                res.status(401).json({
+                    message: 'Login failed!!!'
+                });
+            })
+        })
+        .catch(error => {
+            console.log(error);
+            res.status(500).json({
+                error: error
+            });
+        });
 });
 
 router.delete('/:userId', (req, res, next) => {
