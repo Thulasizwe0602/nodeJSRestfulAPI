@@ -54,7 +54,7 @@ const userModel = new Schema({
         required: true
     },
     permissionId: {
-        type: mongoose.Schema.Types.ObjectId, 
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Permission',
         required: true
     }

@@ -6,10 +6,11 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/user');
 const { dateToString, privateKey } = require('../helpers/helper');
+const isAuthorized = require('../middleware/authorise');
 
 const newDate = new Date().toISOString();
 
-router.get('/', (req, res, next) => {
+router.get('/', isAuthorized, (req, res, next) => {
     User.find()
         .populate('userTypeId permissionId', 'userTypeId permissionId')
         .exec()
@@ -160,11 +161,13 @@ router.post('/signin', (req, res, next) => {
                 if (result) {
                     const token = jwt.sign({
                         emailAddress: user.emailAddress,
-                        userId: user._id
+                        userId: user._id,
+                        userTypeId: user.userTypeId,
+                        permissionId: user.permissionId
                     }, privateKey,
-                    {
-                        expiresIn: "1h"
-                    }
+                        {
+                            expiresIn: "1h"
+                        }
                     );
                     return res.status(200).json({
                         message: 'Welcome ' + user.firstName + '...',
@@ -184,7 +187,7 @@ router.post('/signin', (req, res, next) => {
         });
 });
 
-router.delete('/:userId', (req, res, next) => {
+router.delete('/:userId', isAuthorized, (req, res, next) => {
     const userId = req.params.userId;
     User.remove({ _id: userId })
         .exec()
@@ -206,7 +209,7 @@ router.delete('/:userId', (req, res, next) => {
         });
 });
 
-router.patch('/:userId', (req, res, next) => {
+router.patch('/:userId', isAuthorized, (req, res, next) => {
     const userId = req.params.userId;
     const updateParams = {};
     for (const param of req.body) {
