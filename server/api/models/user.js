@@ -28,6 +28,9 @@ const userModel = new Schema({
         type: String,
         required: true
     },
+    avatar: {
+        type: String
+    },
     isActive: {
         type: Boolean,
         required: true

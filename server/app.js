@@ -19,6 +19,7 @@ const userTypeRoutes = require('./api/routes/usertypes');
 
 
 app.use(morgan('dev'));
+app.use('/userAvatars', express.static('userAvatars'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
